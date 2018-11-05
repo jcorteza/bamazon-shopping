@@ -2,12 +2,15 @@ DROP DATABASE IF EXISTS bamazon;
 
 CREATE DATABASE bamazon;
 
+USE bamazon;
+
 CREATE TABLE products(
     item_id INT NOT NULL AUTO_INCREMENT,
-    product_name VARCHAR(30) NOT NULL,
+    product_name VARCHAR(45) NOT NULL,
     department_name VARCHAR(30) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     stock_quantity INT NOT NULL,
+    PRIMARY KEY (item_id)
 );
 
 INSERT INTO products(product_name, department_name, price, stock_quantity)
@@ -22,4 +25,4 @@ VALUES
 ('Hard Plastic Samsung Galaxy Case', 'Electronics', 12.99, 90),
 ('Prismacolor Premier Colored Pencils-48 Count', 'Arts & Crafts', 23.99, 40),
 ('Oversized Gray Hoodie', 'Apparel', 32.99, 75),
-('Newborn Pup (Any Breed)', 'Pets', 120.00, 20);
+('Newborn Pup (Any Breed)', 'Pets', 119.99, 20);
