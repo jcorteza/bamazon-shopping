@@ -56,6 +56,7 @@ function productTable(resultArray){
         resolve(output);
     });
 }
+// runs inquirer to receive a product id from the customer
 function getProductID(){
     return inquirer.prompt({
         type: "input",
@@ -69,6 +70,7 @@ function getProductID(){
         }
     });
 }
+// runs inquirer to receive a qty of the product he or she would like to purchase
 function getProductQty(){
     return inquirer.prompt({
         type: "input",
@@ -84,6 +86,7 @@ function getProductQty(){
         }
     });
 }
+// checks the current stock of the product and if stock is high enough the order is fulfilled and stock is updated to reflect the customer's purchase
 function checkQty(idInput, qtyInput){
     console.log("Inside checkQty function.");
     connection.query({
@@ -92,16 +95,54 @@ function checkQty(idInput, qtyInput){
         values: {item_id: idInput}
     }, (error, result) => {
         if(error) throw error;
-        productQty = result.RowDataPacket.stock_quantity;
-        product = result.RowDataPacket.product_name;
-        console.log(productQty);
-        (productQty = 0)? console.log(`Sorry, Bamazon is out of the ${product}.`) :
-        (productQty < qtyInput)? console.log(`Sorry, Bamazon doesn't have ${qtyInput} of the ${product}. Try purchasing less.`) :
-        (console.log(`You successfully purchased ${qtyInput} of the ${product}!`), updateProduct(idInput, qtyInput));
+        if(result.length === 0) {
+            console.log("Bamazon could not find that item. Check the product ID and try again.");
+            throw Error("Customer entered product ID that does not exist.");
+        }
+        const productQty = result[0].stock_quantity;
+        const product = result[0].product_name;
+        if(productQty === 0){
+            console.log(`Sorry, Bamazon is out of the ${product}.`);
+        }
+        else if(productQty < qtyInput){
+            console.log(`Sorry, Bamazon doesn't have ${qtyInput} of the ${product}. Try purchasing less.`);
+        }
+        else {
+            const newQty = productQty - qtyInput;
+            console.log(`You successfully purchased ${qtyInput} of the ${product}!`); 
+            updateProduct(idInput, newQty);
+        }
+        keepShopping();
     });
 }
+// updates product's stock after purchase
 function updateProduct(id, qty){
-    console.log("inside updateproduct function.");
-    console.log(`Product ID: ${id} with qty of ${qty}`);
+    connection.query({
+        sql: "UPDATE products SET ? WHERE ?",
+        timeout: 30000,
+        values: [
+            {stock_quantity: qty},
+            {item_id: id}
+        ]
+    }, (error) => {
+        if(error) throw error;
+    });
+}
+// uses inquirer package to ask customer if they would like to keep shopping
+function keepShopping(){
+    inquirer.prompt({
+        type: "confirm",
+        name: "keepShopping",
+        message: "Would you like to keep shopping?",
+        default: true
+    }).then((response) => {
+        if(response.keepShopping){ 
+            customerTransaction();
+        }
+        else{
+            connection.end();
+            process.exit();
+        }
+    });
 }
 customerTransaction(); 

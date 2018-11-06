@@ -26,3 +26,5 @@ VALUES
 ('Prismacolor Premier Colored Pencils-48 Count', 'Arts & Crafts', 23.99, 40),
 ('Oversized Gray Hoodie', 'Apparel', 32.99, 75),
 ('Newborn Pup (Any Breed)', 'Pets', 119.99, 20);
+
+SELECT * FROM products;
