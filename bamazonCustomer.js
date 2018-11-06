@@ -88,7 +88,6 @@ function getProductQty(){
 }
 // checks the current stock of the product and if stock is high enough the order is fulfilled and stock is updated to reflect the customer's purchase
 function checkQty(idInput, qtyInput){
-    console.log("Inside checkQty function.");
     connection.query({
         sql: "SELECT * FROM products WHERE ?",
         timeout: 30000,
@@ -103,29 +102,35 @@ function checkQty(idInput, qtyInput){
         const product = result[0].product_name;
         if(productQty === 0){
             console.log(`Sorry, Bamazon is out of the ${product}.`);
+            keepShopping()
         }
         else if(productQty < qtyInput){
             console.log(`Sorry, Bamazon doesn't have ${qtyInput} of the ${product}. Try purchasing less.`);
+            keepShopping()
         }
         else {
             const newQty = productQty - qtyInput;
-            console.log(`You successfully purchased ${qtyInput} of the ${product}!`); 
-            updateProduct(idInput, newQty);
+            const total = (result[0].price * qtyInput).toFixed(2);
+            const message = `\nYou successfully purchased ${qtyInput} of the ${product}!\nYour total for this purchase: $${total}\n`;
+            updateProduct(idInput, newQty, message).then(keepShopping);
         }
-        keepShopping();
     });
 }
 // updates product's stock after purchase
-function updateProduct(id, qty){
-    connection.query({
-        sql: "UPDATE products SET ? WHERE ?",
-        timeout: 30000,
-        values: [
-            {stock_quantity: qty},
-            {item_id: id}
-        ]
-    }, (error) => {
-        if(error) throw error;
+function updateProduct(id, qty, message){
+    return new Promise((resolve) => {
+        connection.query({
+            sql: "UPDATE products SET ? WHERE ?",
+            timeout: 30000,
+            values: [
+                {stock_quantity: qty},
+                {item_id: id}
+            ]
+        }, (error) => {
+            if(error) throw error;
+            console.log(message);
+            resolve();
+        });
     });
 }
 // uses inquirer package to ask customer if they would like to keep shopping
