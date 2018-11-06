@@ -95,17 +95,17 @@ function checkQty(idInput, qtyInput){
     }, (error, result) => {
         if(error) throw error;
         if(result.length === 0) {
-            console.log("Bamazon could not find that item. Check the product ID and try again.");
+            console.log("\nBamazon could not find that item. Check the product ID and try again.\n");
             throw Error("Customer entered product ID that does not exist.");
         }
         const productQty = result[0].stock_quantity;
         const product = result[0].product_name;
         if(productQty === 0){
-            console.log(`Sorry, Bamazon is out of the ${product}.`);
+            console.log(`\nSorry, Bamazon is out of the ${product}.\n`);
             keepShopping()
         }
         else if(productQty < qtyInput){
-            console.log(`Sorry, Bamazon doesn't have ${qtyInput} of the ${product}. Try purchasing less.`);
+            console.log(`\nSorry, Bamazon doesn't have ${qtyInput} of the ${product}. Try purchasing less.\n`);
             keepShopping()
         }
         else {
